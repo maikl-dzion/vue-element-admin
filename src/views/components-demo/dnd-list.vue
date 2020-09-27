@@ -6,10 +6,10 @@
     <div class="editor-container">
 
       <dnd-list
-            :list1="list1"
-            :list2="list2"
-            list1-title="List"
-            list2-title="Article pool"
+        :list1="list1"
+        :list2="list2"
+        list1-title="List"
+        list2-title="Article pool"
       />
 
       <!--<pre>{{list1}}</pre>-->
@@ -39,7 +39,7 @@ export default {
       this.listLoading = true
       fetchList().then(response => {
         this.list1 = response.data.items.splice(0, 5)
-        this.list2 = response.data.items;
+        this.list2 = response.data.items
         // lg(this.list2);
       })
     }

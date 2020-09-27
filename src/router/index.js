@@ -8,9 +8,9 @@ import Layout from '@/layout'
 
 /* Router Modules */
 import componentsRouter from './modules/components'
-import chartsRouter     from './modules/charts'
-import tableRouter      from './modules/table'
-import nestedRouter     from './modules/nested'
+import chartsRouter from './modules/charts'
+import tableRouter from './modules/table'
+import nestedRouter from './modules/nested'
 
 // import myRoutes         from './modules/my-routes'
 
@@ -126,13 +126,9 @@ export const constantRoutes = [
   }
 ]
 
-
-
-
-//////////////////////////////////
-//////////////////////////////////
-//////////////////////////////////
-
+// ////////////////////////////////
+// ////////////////////////////////
+// ////////////////////////////////
 
 /**
  * asyncRoutesOld
@@ -400,29 +396,26 @@ var baseAsyncRoutes = [
 
   // 404 page must be placed at the end !!!
   { path: '*', redirect: '/404', hidden: true }
-];
-
-
+]
 
 const vidgetConstructRouter = [
-    {
-        path: '/vidget-construct',
-        component: Layout,
-        children: [
-            {
-                path: 'index',
-                name: 'Construct-vidget',
-                component: () => import('@/views/vidget-construct-page/index'),
-                meta: { title: 'Конструктор виджетов', icon: 'tab' }
-            }
-        ]
-    },
-];
-
+  {
+    path: '/vidget-construct',
+    component: Layout,
+    children: [
+      {
+        path: 'index',
+        name: 'Construct-vidget',
+        component: () => import('@/views/vidget-construct-page/index'),
+        meta: { title: 'Конструктор виджетов', icon: 'tab' }
+      }
+    ]
+  }
+]
 
 baseAsyncRoutes = []
 
-baseAsyncRoutes.push(vidgetConstructRouter[0]);
+baseAsyncRoutes.push(vidgetConstructRouter[0])
 
 export const asyncRoutes = baseAsyncRoutes
 

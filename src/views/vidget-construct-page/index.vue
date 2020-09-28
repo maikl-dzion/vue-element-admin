@@ -14,14 +14,9 @@
             style="width:17%; margin-right:10px;"
             draggable="true"
             @dragstart="dragStart($event, vname)"
-            @dragend="dragEnd($event)"
-          >
-
-            <a
-              class="pan-btn blue-btn"
-              style="width: 100%; border-radius: 0px"
-            > {{ vidget['description'] }} </a>
-
+            @dragend="dragEnd($event)">
+            <a class="pan-btn blue-btn"
+               style="width: 100%; border-radius: 0px"> {{ vidget['description'] }} </a>
           </div>
         </template>
       </div>
@@ -34,46 +29,50 @@
         <el-card class="box-card">
           <div class="clearfix" style="padding:0px; margin-bottom: 10px">
             <div class="text-center el-col el-col-40" style="width: 100%;">
-              <a
-                class="pan-btn light-blue-btn"
-                style="width: 100%; border-radius: 0px"
-                @click="addNewDesktop()"
-              > Создать рабочий стол</a></div>
+              <a class="pan-btn light-blue-btn" style="width: 100%; border-radius: 0px"
+                 @click="addNewDesktop()"> Создать рабочий стол</a></div>
           </div><hr>
 
           <div class="clearfix" style="text-align: center; margin-bottom: 10px">
-            Список рабочих столов
+             Список рабочих столов
           </div><hr>
 
+          <!--<pre>{{desktopId}}</pre>-->
+
           <div class="component-item" style="height:420px;">
-            <div
-              v-for="(d, i) in desktopList"
-              style="margin:3px; border-bottom: 1px grey solid;"
-            >
-              {{ d.name }}
+            <div v-for="(desktop, index) in desktopList"
+                 @click="getDesktopItem(desktop.id)"
+                 style="margin:3px; border-bottom: 1px grey solid; cursor: pointer">
+                 {{ desktop.title }}
             </div>
           </div>
         </el-card>
       </el-col>
 
+
       <template v-if="openNewDesktop || openEditDesktop">
         <el-col :span="19">
           <el-card class="box-card">
             <div class="clearfix" style="text-align: center; margin-bottom: 10px">
-              {{ dekstopTitle }}
+              Рабочий стол:{{ desktopLabel }}
             </div><hr>
 
-            <div style="display: flex;">
+            <div style="display: flex; margin-bottom:10px;">
 
-              <div style="width:70%" >
-                drop-state :{{ dragOverState }} <br>
-                selected-name : {{ selectedVidgetName }} <br>
+              <div style="width:40%" >
+                <label for="desktop-title" style="font-size: 14px; font-style: italic">Наименование</label><br>
+                <input id="desktop-title" v-model="desktopTitle" style="border: 1px gainsboro solid"><br>
               </div>
+
+              <div style="width:30%" >
+                <!--drop-state :{{ dragOverState }} <br>-->
+                <!--selected-name : {{ selectedVidgetName }} <br>-->
+              </div>
+
               <div style="width:30%">
                   <a class="pan-btn green-btn"
                      style="width: 100%; text-align:center; border-radius: 0px; padding:10px;"
-                     @click="saveDesktop()"
-                   > Сохранить рабочий стол </a>
+                     @click="saveDesktop()" > Сохранить рабочий стол </a>
               </div>
 
             </div>
@@ -87,23 +86,20 @@
 
               <template v-for="(vidget, i) in desktopVidgetList">
                 <div
-                  :class="'vidget-item-box item__' + vidget.name"
-                  :style="'margin-left:' + vidget.pos.left + 'px; ' +
-                    'margin-top:' + vidget.pos.top +'px;'"
-                  draggable="true"
-                  @dragstart="dragStart2($event, i, vidget)"
-                  @dragend="dragEnd2($event)"
-                >
-                  {{ vidget.description }}
+                    :class="'vidget-item-box item__' + vidget.name"
+                    :style="'margin-left:' + vidget.pos.left + 'px; ' +
+                      'margin-top:' + vidget.pos.top +'px;'"
+                    draggable="true"
+                    @dragstart="dragStart2($event, i, vidget)"
+                    @dragend="dragEnd2($event)">
+                    {{ vidget.description }}
                 </div>
               </template>
 
             </div>
 
-            <div
-              class="text-center el-col el-col-40"
-              style="width: 100%; margin:10px 0px 10px 0px;" >
-              </div>
+            <div class="text-center el-col el-col-40"
+                 style="width: 100%; margin:10px 0px 10px 0px;" ></div>
 
           </el-card>
         </el-col>
@@ -128,22 +124,34 @@ import HttpService from '@/utils/http-request';
 // import waves from '@/directive/waves/index.js'
 
 export default {
+
   name: 'ConstructVidget',
 
   components: {
     // draggable,DragComponent,PanThumb,MdInput,Mallki,DropdownMenu,TabPane,
   },
+
   mixins: [DragService],
+
   data() {
+
+    const hostName   = 'http://bolderfest.ru';
+    const apiUrl     = hostName + '/faximile/api/public/iac/dashboard';
+
     return {
-      apiUrl : 'http://172.16.16.234/iac_dashboard/public/api/',
-      taskElements: [],
-      tasksListElement: {},
+      // apiUrl : 'http://172.16.16.234/iac_dashboard/public/api',
+      apiUrl : apiUrl,
+      taskElements : [],
+      tasksListElement : {},
+
+      desktopId    : 0,
+      desktopName  : '',
+      desktopTitle : '',
 
       // dragOverState: false,
-      openNewDesktop: true,
+      openNewDesktop : false,
       openEditDesktop: false,
-      dekstopTitle: 'Новый рабочий стол',
+      desktopLabel: 'создание',
 
       selectedVidgetName: '',
 
@@ -151,6 +159,7 @@ export default {
       desktopList: [],
 
       vidgetTypeList: {
+
         table: {
           description: 'Виджет «Таблица»',
           type: 'object',
@@ -180,46 +189,48 @@ export default {
 
   watch: {},
 
-  created() {},
-
-  mounted() {
-    // this.dragStyleInit();
-    this.getDesktopList()
+  created() {
+      this.getDesktopList();
   },
+
+  mounted() {},
 
   methods: {
 
-    getDesktopList() {
-      for (let i = 0; i < 10; i++) {
-        const item = {
-          name: 'Sistem ' + (i + 1),
-          id: (i + 1)
-        }
-        this.desktopList.push(item)
-      }
-    },
-
     saveDesktop() {
+
         const postData = {
-          // vidgets : this.desktopVidgetList,
-          name : 'Sistem 1'
+          id      : this.desktopId,
+          vidgets : this.desktopVidgetList,
+          name    : this.desktopName,
+          title   : this.desktopTitle
         }
-        const url = this.apiUrl + 'iac/desktop/save'
+
+        const url = 'http://bolderfest.ru/faximile/api/public/v1/post/iac/dashboard/desktop-save';
+
         HttpService({
-          url: url,
-          method: 'post',
-          params: postData
+           url: url,
+           method: 'post',
+           params: postData
         }).then(response => {
-             lg(response);
+            if(response['save_result']) {
+                this.getDesktopList();
+            } else {
+                alert('Не удалось сохранить');
+            }
         });
     },
 
     addNewDesktop() {
-      this.desktopVidgetList = []
-      this.openNewDesktop = true
+      this.desktopLabel = 'создание';
+      this.clearDate();
+      this.desktopVidgetList = [];
+      this.openNewDesktop = true;
     },
 
     editDesktop() {
+      this.desktopLabel = 'редактирование';
+      this.clearDate();
       this.desktopVidgetList = []
       this.openEditDesktop = true
     },
@@ -229,13 +240,35 @@ export default {
       this.desktopVidgetList.push(item)
     },
 
-    // async getDesktopList() {
-    //   var responseData = await HttpService({
-    //     url: 'http://172.16.16.234/iac_dashboard/public/api/iac/vidget-data',
-    //     method: 'get'
-    //     // params: {}
-    //   })
-    // },
+    getDesktopList() {
+        const url = this.apiUrl + '/desktop-list';
+        HttpService({
+          url   : url,
+          method: 'get'
+        }).then(response => {
+            this.desktopList = response;
+        })
+    },
+
+    async getDesktopItem(itemId) {
+        this.editDesktop();
+        const url = this.apiUrl + '/desktop/' + itemId;
+        const resp = await HttpService({ url : url, method: 'get'})
+        this.desktopTitle = resp['title'];
+        this.desktopId    = resp['id'];
+        this.desktopVidgetList = [];
+        for(let i in resp['vidgets']) {
+            let item = JSON.parse(resp['vidgets'][i]);
+            this.desktopVidgetList.push(item)
+        }
+
+    },
+
+    clearDate() {
+        this.desktopId = 0;
+        this.desktopName = '';
+        this.desktopTitle = '';
+    },
 
   }
 

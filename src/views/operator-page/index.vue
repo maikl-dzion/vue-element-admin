@@ -21,12 +21,30 @@
       </template>
       <template v-else >
 
-        <el-col :span="19">
+        <el-col :span="24">
           <el-card class="box-card">
             <div class="clearfix" style="text-align: center; margin-bottom: 10px">Рабочий стол оператора</div><hr>
-            <div class="component-item" style="height:420px;">
+            <div class="component-item" style="height:100%">
 
-                {{desktopVidgetList}}
+              <div class="drop-container" style="height:464px; border:2px grey dotted" >
+
+                <template v-for="(vidget, index) in desktopVidgetList">
+                  <div
+                          :class="'vidget-item-box item__' + vidget.name"
+                          :style="'margin-left:' + vidget.pos.left + 'px; ' +
+                      'margin-top:' + vidget.pos.top +'px;'"
+                          draggable="true"
+                          @dragstart="dragStart2($event, index, vidget)"
+                          @dragend="dragEnd2($event)">
+
+                    {{ vidget.description }}
+                    <div><i @click="deleteVidget(index, vidget)"
+                            class="el-icon-delete" style="color:red; "/></div>
+                  </div>
+
+                </template>
+
+              </div>
 
             </div>
           </el-card>

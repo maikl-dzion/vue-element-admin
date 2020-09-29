@@ -101,8 +101,6 @@
 
               </template>
 
-
-
             </div>
 
             <div class="text-center el-col el-col-40"
@@ -258,7 +256,6 @@ export default {
         for(let i in items) {
           this.desktopVidgetList.push(items[i]);
         }
-
     },
 
     getDesktopList() {

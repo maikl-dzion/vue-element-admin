@@ -410,12 +410,26 @@ const vidgetConstructRouter = [
         meta: { title: 'Конструктор виджетов', icon: 'tab' }
       }
     ]
-  }
+  },
+
+  {
+    path: '/operator-page',
+    component: Layout,
+    children: [
+      {
+        path: 'index',
+        name: 'Operator-page',
+        component: () => import('@/views/operator-page/index'),
+        meta: { title: 'Страница оператора', icon: 'tab' }
+      }
+    ]
+  },
 ]
 
 baseAsyncRoutes = []
 
 baseAsyncRoutes.push(vidgetConstructRouter[0])
+baseAsyncRoutes.push(vidgetConstructRouter[1])
 
 export const asyncRoutes = baseAsyncRoutes
 

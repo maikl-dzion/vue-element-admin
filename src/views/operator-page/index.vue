@@ -1,116 +1,38 @@
 <template><div class="tab-container">
   <div class="mixin-components-container">
 
-    <el-row style="margin-top:0px;"><el-col><el-card class="box-card">
-
-      <div class="clearfix" style="text-align: left; margin-bottom: 10px; font-style: italic">
-        Выбрать тип виджета
-      </div>
-
-      <div class="clearfix" style="padding:0px; margin-bottom: 10px">
-        <template v-for="(vidget, vname) in vidgetTypeList">
-          <div
-            class="text-center el-col el-col-2"
-            style="width:17%; margin-right:10px;"
-            draggable="true"
-            @dragstart="dragStart($event, vname)"
-            @dragend="dragEnd($event)">
-            <a class="pan-btn blue-btn"
-               style="width: 100%; border-radius: 0px"> {{ vidget['description'] }} </a>
-          </div>
-        </template>
-      </div>
-
-    </el-card></el-col></el-row>
-
     <el-row style="margin-top:0px;">
 
-      <el-col :span="5">
-        <el-card class="box-card">
-          <div class="clearfix" style="padding:0px; margin-bottom: 10px">
-            <div class="text-center el-col el-col-40" style="width: 100%;">
-              <a class="pan-btn light-blue-btn" style="width: 100%; border-radius: 0px"
-                 @click="addNewDesktop()"> Создать рабочий стол</a></div>
-          </div><hr>
+      <template v-if="desktopStatus == 'menu_list'">
 
-          <div class="clearfix" style="text-align: center; margin-bottom: 10px">
-             Список рабочих столов
-          </div><hr>
-
-          <!--<pre>{{desktopId}}</pre>-->
-
-          <div class="component-item" style="height:420px;">
-            <div v-for="(desktop, index) in desktopList"
-                 @click="getDesktopItem(desktop.id)"
-                 style="margin:3px; border-bottom: 1px grey solid; cursor: pointer">
-                 {{ desktop.title }}
+        <el-col :span="5" >
+          <el-card class="box-card">
+            <div class="clearfix" style="text-align: center; margin-bottom: 10px">Выбрать рабочий стол</div><hr>
+            <div class="component-item" style="height:420px;">
+              <div v-for="(desktop, index) in desktopList"
+                   @click="desktopItemOpen(desktop.id)"
+                   style="margin:3px; border-bottom: 1px grey solid; cursor: pointer">
+                   {{ desktop.title }}
+              </div>
             </div>
-          </div>
-        </el-card>
-      </el-col>
+          </el-card>
+        </el-col>
 
+      </template>
+      <template v-else >
 
-      <template v-if="openNewDesktop || openEditDesktop">
         <el-col :span="19">
           <el-card class="box-card">
-            <div class="clearfix" style="text-align: center; margin-bottom: 10px">
-              Рабочий стол:{{ desktopLabel }}
-            </div><hr>
+            <div class="clearfix" style="text-align: center; margin-bottom: 10px">Рабочий стол оператора</div><hr>
+            <div class="component-item" style="height:420px;">
 
-            <div style="display: flex; margin-bottom:10px;">
-
-              <div style="width:40%" >
-                <label for="desktop-title" style="font-size: 14px; font-style: italic">Наименование</label><br>
-                <input id="desktop-title" v-model="desktopTitle" style="border: 1px gainsboro solid"><br>
-              </div>
-
-              <div style="width:30%" >
-                <!--drop-state :{{ dragOverState }} <br>-->
-                <!--selected-name : {{ selectedVidgetName }} <br>-->
-              </div>
-
-              <div style="width:30%">
-                  <a class="pan-btn green-btn"
-                     style="width: 100%; text-align:center; border-radius: 0px; padding:10px;"
-                     @click="saveDesktop()" > Сохранить рабочий стол </a>
-              </div>
+                {{desktopVidgetList}}
 
             </div>
-
-            <div
-              class="drop-container"
-              style="height:464px; border:2px grey dotted"
-              @drop="dropStop($event)"
-              @dragover="dragOverRun($event)"
-              @dragleave="dragLeave($event)" >
-
-              <template v-for="(vidget, index) in desktopVidgetList">
-                <div
-                    :class="'vidget-item-box item__' + vidget.name"
-                    :style="'margin-left:' + vidget.pos.left + 'px; ' +
-                      'margin-top:' + vidget.pos.top +'px;'"
-                    draggable="true"
-                    @dragstart="dragStart2($event, index, vidget)"
-                    @dragend="dragEnd2($event)">
-
-                    {{ vidget.description }}
-                    <div><i @click="deleteVidget(index, vidget)"
-                            class="el-icon-delete" style="color:red; "/></div>
-
-                </div>
-
-              </template>
-
-
-
-            </div>
-
-            <div class="text-center el-col el-col-40"
-                 style="width: 100%; margin:10px 0px 10px 0px;" ></div>
-
           </el-card>
         </el-col>
       </template>
+
 
     </el-row>
 
@@ -131,9 +53,7 @@ import HttpService from '@/utils/http-request';
 // import waves from '@/directive/waves/index.js'
 
 export default {
-
-  name: 'ConstructVidget',
-
+  name: 'OperatorPage',
   components: {
     // draggable,DragComponent,PanThumb,MdInput,Mallki,DropdownMenu,TabPane,
   },
@@ -147,7 +67,9 @@ export default {
 
     return {
       // apiUrl : 'http://172.16.16.234/iac_dashboard/public/api',
-      apiUrl : apiUrl,
+      desktopStatus : 'menu_list',
+
+      apiUrl       : apiUrl,
       taskElements : [],
       tasksListElement : {},
 
@@ -271,8 +193,8 @@ export default {
         })
     },
 
-    async getDesktopItem(itemId) {
-        this.editDesktop();
+    async desktopItemOpen(itemId) {
+        this.desktopStatus = 'desktop_work'
         const url = this.apiUrl + '/desktop/' + itemId;
         const resp = await HttpService({ url : url, method: 'get'})
         this.desktopTitle = resp['title'];
@@ -282,7 +204,6 @@ export default {
             let item = JSON.parse(resp['vidgets'][i]);
             this.desktopVidgetList.push(item)
         }
-
     },
 
     clearDate() {

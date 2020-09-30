@@ -141,7 +141,7 @@ export default {
   data() {
 
     const hostName   = 'http://bolderfest.ru';
-    const apiUrl     = hostName + '/faximile/api/public/iac/dashboard';
+    const apiUrl     = hostName + '/iac-dashboard/api/public/iac/dashboard';
 
     return {
       // apiUrl : 'http://172.16.16.234/iac_dashboard/public/api',
@@ -155,11 +155,11 @@ export default {
 
       openNewDesktop : false,
       openEditDesktop: false,
-      desktopLabel: 'создание',
+      desktopLabel   : 'создание',
 
-      selectedVidgetName: '',
+      selectedVidgetName : '',
 
-      desktopVidgetList: [],
+      desktopVidgetList  : [],
       desktopList: [],
 
       vidgetTypeList: {
@@ -203,7 +203,8 @@ export default {
 
     saveDesktop(callback = null) {
 
-        const url = 'http://bolderfest.ru/faximile/api/public/v1/post/iac/dashboard/desktop-save';
+        // const url = 'http://bolderfest.ru/faximile/api/public/v1/post/iac/dashboard/desktop-save';
+        const url = this.apiUrl + '/post/desktop-save';
 
         const postData = {
           id      : this.desktopId,
@@ -211,6 +212,8 @@ export default {
           name    : this.desktopName,
           title   : this.desktopTitle
         }
+
+        // debugger;
 
         HttpService({
            url: url,

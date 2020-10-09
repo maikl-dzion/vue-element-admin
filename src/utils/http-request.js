@@ -39,19 +39,21 @@ service.interceptors.request.use(
 service.interceptors.response.use(
 
   response => {
-    const res = response.data
-    return res
+    // debugger;
+    const result = response.data
+    return result
   },
 
   error => {
+    // debugger;
     console.log('err' + error) // for debug
     Message({
       message: error.message,
       type: 'error',
       duration: 5 * 1000
     });
-    let r = 10;
-    // lg(Message);
+    // let r = 10;
+    // lg(error.message);
     return Promise.reject(error)
   }
 

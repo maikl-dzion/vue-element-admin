@@ -43,6 +43,18 @@ Object.keys(filters).forEach(key => {
   Vue.filter(key, filters[key])
 })
 
+// function postRequest(url, data, useHeaders = null) {
+//     const headers = {
+//         'Content-Type': 'application/json'
+//     };
+//     return fetch(url, {
+//         headers: new Headers(headers),
+//         credentials: 'same-origin',  // параметр определяющий передвать ли разные сессионные данные вместе с запросом
+//         method     : 'POST',              // метод POST
+//         body       : JSON.stringify(data),  // типа запрашиаемого документа
+//     }).then(response => response.json()) // возвращаем промис
+// }
+
 Vue.config.productionTip = false
 
 new Vue({

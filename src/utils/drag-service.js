@@ -3,10 +3,10 @@ const DragService = {
 
   data() {
     return {
-      dragOverState: false,
+      dragOverState  : false,
       dragOverInState: false,
-      elementPos: {},
-      elemIndex: -1
+      elementPos     : {},
+      elemIndex      : -1
     }
   },
 
@@ -14,20 +14,21 @@ const DragService = {
 
     setPosition(e, elemName = 'elementPos') {
       const pos = {
-        top: e.offsetY,
-        left: e.offsetX,
-        x_offset: e.offsetX,
-        y_offset: e.offsetY,
-        x_page: e.pageX,
-        y_page: e.pageX
+        top      : e.offsetY,
+        left     : e.offsetX,
+        x_offset : e.offsetX,
+        y_offset : e.offsetY,
+        x_page   : e.pageX,
+        y_page   : e.pageX
       }
 
-      return this[elemName] = pos
+      this[elemName] = pos;
+      return pos;
     },
 
     // ###########################################
     // ### -- Контейнер куда перемещаем -- ######
-    // -- Находимся над контейнером (перемещаемся над контейнером)
+    // -- Находимся над контейнером (canvas)
     dragOverRun(e) {
       e.preventDefault()
 
@@ -36,7 +37,7 @@ const DragService = {
       if (this.elemIndex != -1) {
         this.dragOverInState = true
       } else {
-        this.dragOverState = true
+        this.dragOverState   = true
       }
     },
 
@@ -45,46 +46,44 @@ const DragService = {
       e.preventDefault()
 
       if (this.dragOverState) {
-        const vName = this.selectedVidgetName
-        const vidget = Object.assign({}, this.vidgetTypeList[vName])
-        vidget['pos'] = this.elementPos
-        vidget['name'] = vName
-        this.addNewVidget(vidget, vName)
+        // debugger;
+        this.addNewWidget({pos : this.elementPos})
       }
 
       if (this.dragOverInState && this.elemIndex != -1) {
-        this.elementPos.top = this.elementPos.top - 20
+        this.elementPos.top  = this.elementPos.top - 20
         this.elementPos.left = this.elementPos.left - 20
-        this.desktopVidgetList[this.elemIndex]['pos'] = this.elementPos
+        this.editWidget({pos : this.elementPos})
       }
 
       this.dragOverInState = false
-      this.dragOverState = false
+      this.dragOverState   = false
     },
 
     // -- Выходим за пределы контейнера
     dragLeave(e) {
       this.dragOverInState = false
-      this.dragOverState = false
+      this.dragOverState   = false
     },
     // --------------------------------
 
     // ###########################################
     // ### -- Элемент который перемещаем -- ######
-    dragStart(e, vidgetName) {
-      this.selectedVidgetName = vidgetName
+    dragStart(e, name) {
+      // debugger;
+      this.selectElemName = name;
     },
 
     dragEnd(e) {
-      this.selectedVidgetName = ''
-      this.dragOverState = false
+      this.selectElemName = '';
+      this.dragOverState  = false
     },
 
-    dragStart2(e, index, vidgetName) {
+    dragStartEdit(e, index, name) {
       this.elemIndex = index
     },
 
-    dragEnd2(e) {
+    dragEndEdit(e) {
       this.elemIndex = -1
       this.dragOverInState = false
     }

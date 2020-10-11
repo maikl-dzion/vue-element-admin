@@ -55,12 +55,11 @@
             <hr>
 
             <div class="component-item" style="height:420px;">
-              <div
-                v-for="(desktop, index) in desktopList"
-                style="margin:3px; border-bottom: 1px grey solid; cursor: pointer"
-                @click="getDesktopItem(desktop.id)"
-              >
-                {{ desktop.title }}
+              <!--<pre>{{desktopList}}</pre>-->
+              <div v-for="(desktop, index) in desktopList"
+                   style="margin:3px; border-bottom: 1px grey solid; cursor: pointer"
+                   @click="getDesktopItem(desktop, index)">
+                    {{ desktop.label }}
               </div>
             </div>
           </el-card>
@@ -77,7 +76,7 @@
                 <div style="width:20%; border:0px red solid">
                   <div style="display: flex;">
                       <div  style="width:100px; font-size: 14px; font-style: italic">Title</div>
-                      <input v-model="desktopItem.title" style="border:1px gainsboro solid;">
+                      <input v-model="desktopItem.label" style="border:1px gainsboro solid;">
                   </div>
                   <div style="display: flex;">
                        <div  style="width:100px; font-size: 14px; font-style: italic">Name</div>
@@ -87,7 +86,7 @@
 
                 <div style="width:15%; text-align: left; margin: 0px 10px 0px 10px;">
                     <select v-model="desktopItem.role" style="width:100%">
-                        <option v-for="(role, name) in widgetSchema.properties.roles.properties"
+                        <option v-for="(roleItem, name) in userRoles"
                                 :value="name">{{name}}</option>
                     </select>
                 </div>
@@ -137,6 +136,7 @@
       </el-row>
 
       <div>
+        <!--<pre>{{userRoles}}</pre>-->
         <!--<pre>{{elementPos}}</pre>-->
         <!--<pre>{{desktopWidgetList}}</pre>-->
         <!--<pre>{{widgetSettings}}</pre>-->
@@ -147,197 +147,7 @@
   </div>
 </template>
 
-<script>
-
-import DragService from '@/utils/drag-service'
-import HttpService from '@/utils/http-request'
-
-export default {
-  name: 'ConstructVidget',
-  // components: {},
-  mixins: [DragService],
-  data() {
-    const hostName = 'http://bolderfest.ru'
-    const apiUrl = hostName + '/iac-dashboard/api/public/iac/dashboard'
-
-    return {
-
-      apiUrl: apiUrl, // api-url
-      openDesktopState: false, // состояние рабочего стола
-      selectElemName: '', // выбранное имя виджета
-
-      widgetSchema: {}, // общая схема виджетов
-      widgetSettings: {}, // настройки виджетов
-      desktopList: [], // список рабочих столов
-      desktopWidgetList: [], // виджеты рабочего стола
-
-      // текущий рабочий стол
-      desktopItem: {
-        desktop_id: 0,
-        role : '',
-        name : '',
-        label: '',
-        description: '',
-        default_count_widget: 3, // количество отображаемых виджетов на столе
-        widget_list: []
-      }
-
-    }
-  }, // --- end data
-
-  created() {
-    this.getSchema()
-    this.getWidgetSettrings()
-    this.addNewDesktop()
-    // this.getDesktopList();
-  },
-
-  methods: {
-
-    cloneItem(object) {
-      const newObject = Object.assign({}, object)
-      return newObject
-    },
-
-    // получаем схему виджетов
-    getSchema() {
-      const url = this.apiUrl + '/get-schema'
-      HttpService({ url: url, method: 'get' }).then(response => {
-        this.widgetSchema = JSON.parse(response)
-        // lg(typeof this.widgetSchema);
-      })
-    },
-
-    // получаем настройки виджетов
-    getWidgetSettrings() {
-      const url = this.apiUrl + '/get-widget-settings'
-      HttpService({ url: url, method: 'get' }).then(response => {
-        this.widgetSettings = JSON.parse(response)
-        // lg(typeof this.widgetSettings);
-      })
-    },
-
-    // создаем новый рабочий стол
-    addNewDesktop() {
-      this._clear()
-      this.desktopWidgetList = []
-      this.openDesktopState = true
-    },
-
-    // создаем новый виджет
-    addNewWidget(param) {
-      const widget = {}
-      const widgetName = this.selectElemName
-      const widgetProps = this.cloneItem(this.widgetSchema['properties'][widgetName])
-      const settings = this.cloneItem(this.widgetSettings['general_settings'])
-      const wSetting = this.cloneItem(this.widgetSettings[widgetName])
-
-      widget['widget_id'] = 0
-      widget['desktop_id'] = 0
-      widget['name'] = widgetName
-      widget['pos'] = param.pos
-      widget['settings'] = Object.assign(settings, wSetting)
-      widget['properties'] = widgetProps
-
-      const item = this.cloneItem(Object.assign({}, widget))
-
-      this.desktopWidgetList.push(item)
-    },
-
-    editWidget(param) {
-      this.desktopWidgetList[this.elemIndex]['pos'] = param.pos
-    },
-
-    deleteVidget(index, vidget) {
-      delete this.desktopWidgetList[index]
-      const items = this.cloneItem(this.desktopWidgetList)
-      this.desktopWidgetList = []
-      for (const i in items) {
-        this.desktopWidgetList.push(items[i])
-      }
-    },
-
-    _clear() {
-      // this.desktopId    = 0;
-      // this.desktopName  = '';
-      // this.desktopTitle = '';
-    },
-
-    saveDesktop(callback = null) {
-      const url = this.apiUrl + '/post/desktop-save'
-      this.desktopItem['widget_list'] = this.cloneItem(this.desktopWidgetList)
-      const postData = this.desktopItem
-
-      this.postRequest(url, postData)
-        .then(response => console.log(response)) // обрабатываем результат вызова response.json()
-        .catch(error => console.error(error))
-    },
-
-    postRequest(url, data, headers = {}) {
-      headers['Content-Type'] = 'application/json'
-      return fetch(url, {
-        headers: new Headers(headers),
-        credentials: 'same-origin', // параметр определяющий передвать ли разные сессионные данные вместе с запросом
-        method: 'POST', // метод POST
-        body: JSON.stringify(data) //
-      }).then(response => response.json()) // возвращаем промис
-    }
-
-    // addNewDesktop() {
-    //     this.desktopLabel = 'создание';
-    //     this.clearDate();
-    //     this.desktopVidgetList = [];
-    //     this.openNewDesktop = true;
-    // },
-    //
-    // editDesktop() {
-    //     this.desktopLabel = 'редактирование';
-    //     this.clearDate();
-    //     this.desktopVidgetList = []
-    //     this.openEditDesktop = true
-    // },
-    //
-
-    //
-    // deleteVidget(index, vidget) {
-    //
-    //     delete this.desktopVidgetList[index];
-    //     let items = Object.assign({}, this.desktopVidgetList);
-    //     this.desktopVidgetList = [];
-    //     for (let i in items) {
-    //         this.desktopVidgetList.push(items[i]);
-    //     }
-    // },
-    //
-    // getDesktopList() {
-    //     const url = this.apiUrl + '/desktop-list';
-    //     HttpService({
-    //         url: url,
-    //         method: 'get'
-    //     }).then(response => {
-    //         this.desktopList = response;
-    //     })
-    // },
-    //
-    // async getDesktopItem(itemId) {
-    //     this.editDesktop();
-    //     const url = this.apiUrl + '/desktop/' + itemId;
-    //     const resp = await HttpService({url: url, method: 'get'})
-    //     this.desktopTitle = resp['title'];
-    //     this.desktopId = resp['id'];
-    //     this.desktopVidgetList = [];
-    //     for (let i in resp['vidgets']) {
-    //         let item = JSON.parse(resp['vidgets'][i]);
-    //         this.desktopVidgetList.push(item)
-    //     }
-    //
-    // },
-    //
-
-  }
-
-}
-</script>
+<script src="./index.js" ></script>
 
 <style scoped>
     .tab-container {

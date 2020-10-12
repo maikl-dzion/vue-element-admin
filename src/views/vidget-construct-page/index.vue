@@ -56,10 +56,12 @@
 
             <div class="component-item" style="height:420px;">
               <!--<pre>{{desktopList}}</pre>-->
-              <div v-for="(desktop, index) in desktopList"
-                   style="margin:3px; border-bottom: 1px grey solid; cursor: pointer"
-                   @click="getDesktopItem(desktop, index)">
-                    {{ desktop.label }}
+              <div
+                v-for="(desktop, index) in desktopList"
+                style="margin:3px; border-bottom: 1px grey solid; cursor: pointer"
+                @click="getDesktopItem(desktop, index)"
+              >
+                {{ desktop.label }}
               </div>
             </div>
           </el-card>
@@ -75,25 +77,30 @@
 
                 <div style="width:20%; border:0px red solid">
                   <div style="display: flex;">
-                      <div  style="width:100px; font-size: 14px; font-style: italic">Title</div>
-                      <input v-model="desktopItem.label" style="border:1px gainsboro solid;">
+                    <div style="width:100px; font-size: 14px; font-style: italic">Title</div>
+                    <input v-model="desktopItem.label" style="border:1px gainsboro solid;">
                   </div>
                   <div style="display: flex;">
-                       <div  style="width:100px; font-size: 14px; font-style: italic">Name</div>
-                       <input v-model="desktopItem.name" style="border:1px gainsboro solid;">
+                    <div style="width:100px; font-size: 14px; font-style: italic">Name</div>
+                    <input v-model="desktopItem.name" style="border:1px gainsboro solid;">
                   </div>
                 </div>
 
                 <div style="width:15%; text-align: left; margin: 0px 10px 0px 10px;">
-                    <select v-model="desktopItem.role" style="width:100%">
-                        <option v-for="(roleItem, name) in userRoles"
-                                :value="name">{{name}}</option>
-                    </select>
+                  <select v-model="desktopItem.role" style="width:100%">
+                    <option
+                      v-for="(roleItem, name) in userRoles"
+                      :value="name"
+                    >{{ name }}</option>
+                  </select>
                 </div>
 
                 <div style="width:40%; text-align: left; margin-left: 10px;">
-                  <a class="pan-btn green-btn" style="width: 50%; text-align:center; border-radius: 0px; padding:10px;"
-                    @click="saveDesktop()"> Сохранить рабочий стол </a>
+                  <a
+                    class="pan-btn green-btn"
+                    style="width: 50%; text-align:center; border-radius: 0px; padding:10px;"
+                    @click="saveDesktop()"
+                  > Сохранить рабочий стол </a>
                 </div>
 
               </div><hr>

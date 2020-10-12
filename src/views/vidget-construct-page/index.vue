@@ -6,11 +6,21 @@
       <el-row style="margin-top:0px;">
         <el-col>
           <el-card class="box-card">
-            <div
-              class="clearfix"
-              style="text-align: left; margin-bottom: 10px; font-style: italic"
-            >Выбрать тип виджета</div>
-            <div class="clearfix" style="padding:0px; margin-bottom: 10px">
+
+            <div style="display: flex;" >
+                <div class="clearfix" style="width:20%; text-align: left; margin-bottom: 10px; font-style: italic">
+                   Выбрать тип виджета
+                </div>
+                <div class="clearfix"
+                     style="width:50%; margin-bottom: 10px; margin-left: 10px;font-style: italic; display: flex"
+                     ><input v-model="apiUrl"
+                          style="border:1px gainsboro solid; padding:4px; width:60%; color:orangered; ">
+                     <button @click="saveApiUrl()" style="cursor: pointer" >Сохранить ApiUrl</button>
+                     <button @click="defaultApiUrl()" style="cursor: pointer; margin-left:10px;" >Default ApiUrl</button>
+                </div>
+            </div>
+
+            <div class="clearfix" style="padding:0px; margin-bottom: 10px" >
 
               <template v-for="(widget, name) in widgetSchema.properties">
                 <div
@@ -88,47 +98,48 @@
 
                 <div style="width:15%; text-align: left; margin: 0px 10px 0px 10px;">
                   <select v-model="desktopItem.role" style="width:100%">
-                    <option
-                      v-for="(roleItem, name) in userRoles"
-                      :value="name"
-                    >{{ name }}</option>
+                          <option v-for="(roleItem, name) in userRoles"
+                            :value="name">{{ name }}</option>
                   </select>
+
+                  <select v-model="desktopItem.system_id" style="width:100%">
+                    <option v-for="(system, i) in systemList"
+                            :value="system.id">{{ system.name }}</option>
+                  </select>
+
                 </div>
 
                 <div style="width:40%; text-align: left; margin-left: 10px;">
-                  <a
-                    class="pan-btn green-btn"
-                    style="width: 50%; text-align:center; border-radius: 0px; padding:10px;"
-                    @click="saveDesktop()"
-                  > Сохранить рабочий стол </a>
+                  <a class="pan-btn green-btn" style="width: 50%; text-align:center; border-radius: 0px; padding:10px;"
+                     @click="saveDesktop()" > Сохранить рабочий стол </a>
                 </div>
 
               </div><hr>
 
               <!-- Виджеты рабочего стола -->
-              <div
-                class="drop-container"
-                style="height:464px; border:2px grey dotted"
-                @dragover="dragOverRun($event)"
-                @drop="dropStop($event)"
-                @dragleave="dragLeave($event)"
-              >
-                <template v-for="(item, index) in desktopWidgetList">
-                  <div
-                    draggable="true"
-                    :class="'vidget-item-box item__' + item.name"
-                    :style="'margin-left:' + item.pos.left + 'px; ' + 'margin-top:' + item.pos.top +'px;'"
-                    @dragstart="dragStartEdit($event, index, item)"
-                    @dragend="dragEndEdit($event)"
-                  >
-                    {{ item.description }}
-                    <div><i
-                      class="el-icon-delete"
-                      style="color:red; "
-                      @click="deleteWidget(index, item)"
-                    /></div>
-                  </div>
-                </template>
+              <div  class="drop-container"
+                    style="height:464px; border:2px grey dotted"
+                    @dragover="dragOverRun($event)"
+                    @drop="dropStop($event)"
+                    @dragleave="dragLeave($event)" >
+
+                    <template v-for="(item, index) in desktopWidgetList">
+                      <div
+                        draggable="true"
+                        :class="'vidget-item-box item__' + item.name"
+                        :style="'margin-left:' + item.pos.left + 'px; ' + 'margin-top:' + item.pos.top +'px;'"
+                        @dragstart="dragStartEdit($event, index, item)"
+                        @dragend="dragEndEdit($event)"
+                      >
+                        {{ item.description }}
+                        <div><i
+                          class="el-icon-delete"
+                          style="color:red; "
+                          @click="deleteWidget(index, item)"
+                        /></div>
+                      </div>
+                    </template>
+
               </div>
 
               <div
@@ -143,6 +154,9 @@
       </el-row>
 
       <div>
+
+        <!--<pre>{{desktopItem}}</pre>-->
+
         <!--<pre>{{userRoles}}</pre>-->
         <!--<pre>{{elementPos}}</pre>-->
         <!--<pre>{{desktopWidgetList}}</pre>-->

@@ -2,231 +2,279 @@ import DragService from '@/utils/drag-service'
 import HttpService from '@/utils/http-request'
 
 export default {
-  name: 'ConstructVidget',
-  mixins: [DragService],
-  data() {
-    const hostName = 'http://bolderfest.ru'
-    const apiUrl = hostName + '/iac-dashboard/api/public/iac/dashboard'
+    name: 'ConstructVidget',
+    mixins: [DragService],
+    data() {
 
-    return {
-      apiUrl: apiUrl, // api-url
-      openDesktopState: false, // состояние рабочего стола
-      selectElemName: '', // выбранное имя виджета
+        //const hostName = 'http://bolderfest.ru';
+        //const apiUrl = hostName + '/iac-dashboard/api/public/iac/dashboard';
 
-      userRoles: {},
-      widgetSchema: {}, // общая схема виджетов
-      widgetSettings: {}, // настройки виджетов
-      desktopList: [], // список рабочих столов
-      desktopWidgetList: [], // виджеты рабочего стола
+        return {
+            apiUrl: '', // api-url
+            openDesktopState: false, // состояние рабочего стола
+            selectElemName: '', // выбранное имя виджета
 
-      // -- Рабочий стол
-      desktopItem: {
-        desktop_id: 0,
-        role: 'operator',
-        name: 'desktop-1',
-        label: 'Рабочий стол 1',
-        description: 'desktop description',
-        default_count_widget: 3, // количество отображаемых виджетов на столе
-        widget_list: []
-      },
+            userRoles: {},
+            widgetSchema: {}, // общая схема виджетов
+            widgetSettings: {}, // настройки виджетов
+            desktopList: [], // список рабочих столов
+            desktopWidgetList: [], // виджеты рабочего стола
+            desktopItem: {},
 
-      // -- Виждет
-      widgetItem: {
-        desktop_id: 0,
-        widget_id: 0,
-        name: '',
-        label: '',
-        pos: {},
-        settings: {},
-        properties: {}
-      }
-    }
-  }, // --- end data
+            // -- Рабочий стол
+            desktopItemModel: {
+                desktop_id: 0,
+                system_id: 1,
+                role: 'operator',
+                name: 'desktop-1',
+                label: 'Рабочий стол 1',
+                description: 'desktop description',
+                default_count_widget: 3, // количество отображаемых виджетов на столе
+                widget_list: []
+            },
 
-  created() {
-    this.getSchema()
-    this.getWidgetSettrings()
-    this.addNewDesktop()
-    this.getDesktopList()
-  },
+            // -- Виждет
+            widgetItemModel: {
+                desktop_id: 0,
+                widget_id: 0,
+                name: '',
+                label: '',
+                pos: {},
+                settings: {},
+                properties: {}
+            },
 
-  methods: {
+            systemList: [
+                { id: 1, name: 'system-1',
+                  label: 'Система 1',
+                },
 
-    cloneItem(object) {
-      const newObject = Object.assign({}, object)
-      return newObject
-    },
-
-    // получаем схему виджетов
-    getSchema() {
-      const url = this.apiUrl + '/get-schema'
-      HttpService({ url: url, method: 'get' }).then(response => {
-        this.widgetSchema = JSON.parse(response)
-        // debugger;
-        // lg(typeof this.widgetSchema);
-        for (name in this.widgetSchema.properties.roles.properties) {
-          const role = this.widgetSchema.properties.roles.properties[name]
-          this.userRoles[name] = role
+                { id: 2, name: 'system-2',
+                  label: 'Система 2',
+                }
+            ],
         }
-        // lg(this.userRoles);
-      })
+    }, // --- end data
+
+    created() {
+
+        this.desktopItem = this.cloneItem(this.desktopItemModel);
+
+        this.getApiUrl();
+        this.getSchema();
+        this.getWidgetSettrings();
+        this.addNewDesktop();
+        this.getDesktopList();
     },
 
-    // получаем настройки виджетов
-    getWidgetSettrings() {
-      const url = this.apiUrl + '/get-widget-settings'
-      HttpService({ url: url, method: 'get' }).then(response => {
-        this.widgetSettings = JSON.parse(response)
-        // lg(typeof this.widgetSettings);
-      })
-    },
+    methods: {
 
-    // получаем список рабочих столов
-    getDesktopList() {
-      const url = this.apiUrl + '/desktop-list'
-      HttpService({ url: url, method: 'get' })
-        .then(response => {
-          this.desktopList = response
-        })
-    },
+        cloneItem(object) {
+            const newObject = Object.assign({}, object)
+            return newObject
+        },
 
-    async getDesktopItem(desktop, index) {
-      const itemId = desktop.desktop_id
-      this.editDesktop()
-      const url = this.apiUrl + '/desktop-item/' + itemId
-      const response = await HttpService({ url: url, method: 'get' })
-      console.log(response)
-      // this.desktopTitle = resp['title'];
-      // this.desktopId    = resp['id'];
-      // this.desktopWidgetList = [];
-      // for (let i in resp['vidgets']) {
-      //     let item = JSON.parse(resp['vidgets'][i]);
-      //     this.desktopVidgetList.push(item)
-      // }
-    },
+        // получаем схему виджетов
+        getSchema() {
+            const url = this.apiUrl + '/get-schema'
+            HttpService({url: url, method: 'get'}).then(response => {
+                this.widgetSchema = JSON.parse(response)
+                // debugger;
+                // lg(typeof this.widgetSchema);
+                for (name in this.widgetSchema.properties.roles.properties) {
+                    const role = this.widgetSchema.properties.roles.properties[name]
+                    this.userRoles[name] = role
+                }
+                // lg(this.userRoles);
+            })
+        },
 
-    // создаем новый рабочий стол
-    addNewDesktop() {
-      this._clear()
-      this.desktopWidgetList = []
-      this.openDesktopState = true
-    },
+        // получаем настройки виджетов
+        getWidgetSettrings() {
+            const url = this.apiUrl + '/get-widget-settings'
+            HttpService({url: url, method: 'get'}).then(response => {
+                this.widgetSettings = JSON.parse(response)
+                // lg(typeof this.widgetSettings);
+            })
+        },
 
-    // создаем новый виджет
-    addNewWidget(param) {
-      const widget = this.cloneItem(this.widgetItem)
-      const widgetName = this.selectElemName
-      const widgetProps = this.cloneItem(this.widgetSchema['properties'][widgetName])
-      const settings = this.cloneItem(this.widgetSettings['general_settings'])
-      const wSetting = this.cloneItem(this.widgetSettings[widgetName])
+        // получаем список рабочих столов
+        getDesktopList() {
+            const url = this.apiUrl + '/desktop-list'
+            HttpService({url: url, method: 'get'})
+                .then(response => {
+                    this.desktopList = response
+                })
+        },
 
-      widget['name'] = widgetName
-      widget['pos'] = param.pos
-      widget['settings'] = Object.assign(settings, wSetting)
-      widget['properties'] = widgetProps
+        async getDesktopItem(desktop, index) {
+            const itemId = desktop.desktop_id
+            this.editDesktop()
+            const url = this.apiUrl + '/desktop-item/' + itemId
+            const desktopItem = await HttpService({url: url, method: 'get'})
+            this.desktopItem  = this.cloneItem(desktopItem);
+            this.desktopWidgetList = [];
+            // this.desktopWidgetList = this.cloneItem(this.desktopItem.widget_list);
+            for(let i in this.desktopItem.widget_list) {
+                let item = this.desktopItem.widget_list[i];
+                this.desktopWidgetList.push(item);
+            }
+            this.desktopItem.widget_list = [];
+        },
 
-      const item = this.cloneItem(Object.assign({}, widget))
+        // создаем новый рабочий стол
+        addNewDesktop() {
+            this._clear()
+            this.desktopWidgetList = []
+            this.openDesktopState = true;
+            this.desktopItem = this.cloneItem(this.desktopItemModel);
+        },
 
-      this.desktopWidgetList.push(item)
-    },
+        // создаем новый виджет
+        addNewWidget(param) {
+            const widget = this.cloneItem(this.widgetItemModel)
+            const widgetName = this.selectElemName
+            const widgetProps = this.cloneItem(this.widgetSchema['properties'][widgetName])
+            const settings = this.cloneItem(this.widgetSettings['general_settings'])
+            const wSetting = this.cloneItem(this.widgetSettings[widgetName])
 
-    editWidget(param) {
-      this.desktopWidgetList[this.elemIndex]['pos'] = param.pos
-    },
+            widget['name'] = widgetName
+            widget['pos'] = param.pos
+            widget['settings'] = Object.assign(settings, wSetting)
+            widget['properties'] = widgetProps
 
-    deleteWidget(index, vidget) {
-      delete this.desktopWidgetList[index]
-      const items = this.cloneItem(this.desktopWidgetList)
-      this.desktopWidgetList = []
-      for (const i in items) {
-        this.desktopWidgetList.push(items[i])
-      }
-    },
+            const item = this.cloneItem(Object.assign({}, widget))
 
-    _clear() {
-      // this.desktopId    = 0;
-      // this.desktopName  = '';
-      // this.desktopTitle = '';
-    },
+            this.desktopWidgetList.push(item)
+        },
 
-    saveDesktop(callback = null) {
-      const url = this.apiUrl + '/post/desktop-save'
-      this.desktopItem['widget_list'] = this.cloneItem(this.desktopWidgetList)
-      const postData = this.desktopItem
+        editWidget(param) {
+            this.desktopWidgetList[this.elemIndex]['pos'] = param.pos
+        },
 
-      this.postRequest(url, postData)
-        .then(response => console.log(response)) // обрабатываем результат вызова response.json()
-        .catch(error => console.error(error))
-    },
+        deleteWidget(index, vidget) {
+            delete this.desktopWidgetList[index]
+            const items = this.cloneItem(this.desktopWidgetList)
+            this.desktopWidgetList = []
+            for (const i in items) {
+                this.desktopWidgetList.push(items[i])
+            }
+        },
 
-    postRequest(url, data, headers = {}) {
-      headers['Content-Type'] = 'application/json'
-      return fetch(url, {
-        headers: new Headers(headers),
-        credentials: 'same-origin', // параметр определяющий передвать ли разные сессионные данные вместе с запросом
-        method: 'POST', // метод POST
-        body: JSON.stringify(data) //
-      }).then(response => response.json()) // возвращаем промис
-    },
+        _clear() {
+            // this.desktopId    = 0;
+            // this.desktopName  = '';
+            // this.desktopTitle = '';
+        },
 
-    editDesktop() {
-      // this.desktopLabel = 'редактирование';
-      this._clear()
-      this.desktopWidgetList = []
-      this.openDesktopState = true
+        saveDesktop(callback = null) {
+            const url = this.apiUrl + '/post/desktop-save'
+            this.desktopItem['widget_list'] = this.cloneItem(this.desktopWidgetList)
+            const postData = this.desktopItem
+
+            this.postRequest(url, postData)
+                .then(response => {
+                    console.log(response);
+                    this.getDesktopList();
+                }) // обрабатываем результат вызова response.json()
+                .catch(error => {
+                    console.error({url, error})
+                    // lg({url, error});
+                })
+        },
+
+        postRequest(url, data, headers = {}) {
+            headers['Content-Type'] = 'application/json'
+            return fetch(url, {
+                headers    : new Headers(headers),
+                credentials: 'same-origin', // параметр определяющий передвать ли разные сессионные данные вместе с запросом
+                method     : 'POST', // метод POST
+                body       : JSON.stringify(data) //
+            }).then(response => response.json()) // возвращаем промис
+        },
+
+        editDesktop() {
+            // this.desktopLabel = 'редактирование';
+            this._clear()
+            this.desktopWidgetList = []
+            this.openDesktopState = true
+        },
+
+        //////////////////////
+        // --- Api Url ------
+        saveApiUrl() {
+            localStorage.setItem('iac-desktop-api-url', this.apiUrl);
+        },
+
+        getApiUrl() {
+            let apiUrl = localStorage.getItem('iac-desktop-api-url');
+            if(!apiUrl) {
+                this.defaultApiUrl();
+                apiUrl = localStorage.getItem('iac-desktop-api-url');
+            }
+
+            this.apiUrl = apiUrl;
+        },
+
+        defaultApiUrl() {
+            const hostName = 'http://bolderfest.ru';
+            this.apiUrl = hostName + '/iac-dashboard/api/public/iac/dashboard';
+            this.saveApiUrl();
+        },
+        /////////////////////
+
+
+        // addNewDesktop() {
+        //     this.desktopLabel = 'создание';
+        //     this.clearDate();
+        //     this.desktopVidgetList = [];
+        //     this.openNewDesktop = true;
+        // },
+        //
+        // editDesktop() {
+        //     this.desktopLabel = 'редактирование';
+        //     this.clearDate();
+        //     this.desktopVidgetList = []
+        //     this.openEditDesktop = true
+        // },
+        //
+
+        //
+        // deleteVidget(index, vidget) {
+        //
+        //     delete this.desktopVidgetList[index];
+        //     let items = Object.assign({}, this.desktopVidgetList);
+        //     this.desktopVidgetList = [];
+        //     for (let i in items) {
+        //         this.desktopVidgetList.push(items[i]);
+        //     }
+        // },
+        //
+        // getDesktopList() {
+        //     const url = this.apiUrl + '/desktop-list';
+        //     HttpService({
+        //         url: url,
+        //         method: 'get'
+        //     }).then(response => {
+        //         this.desktopList = response;
+        //     })
+        // },
+        //
+        // async getDesktopItem(itemId) {
+        //     this.editDesktop();
+        //     const url = this.apiUrl + '/desktop/' + itemId;
+        //     const resp = await HttpService({url: url, method: 'get'})
+        //     this.desktopTitle = resp['title'];
+        //     this.desktopId = resp['id'];
+        //     this.desktopVidgetList = [];
+        //     for (let i in resp['vidgets']) {
+        //         let item = JSON.parse(resp['vidgets'][i]);
+        //         this.desktopVidgetList.push(item)
+        //     }
+        //
+        // },
+        //
+
     }
-
-    // addNewDesktop() {
-    //     this.desktopLabel = 'создание';
-    //     this.clearDate();
-    //     this.desktopVidgetList = [];
-    //     this.openNewDesktop = true;
-    // },
-    //
-    // editDesktop() {
-    //     this.desktopLabel = 'редактирование';
-    //     this.clearDate();
-    //     this.desktopVidgetList = []
-    //     this.openEditDesktop = true
-    // },
-    //
-
-    //
-    // deleteVidget(index, vidget) {
-    //
-    //     delete this.desktopVidgetList[index];
-    //     let items = Object.assign({}, this.desktopVidgetList);
-    //     this.desktopVidgetList = [];
-    //     for (let i in items) {
-    //         this.desktopVidgetList.push(items[i]);
-    //     }
-    // },
-    //
-    // getDesktopList() {
-    //     const url = this.apiUrl + '/desktop-list';
-    //     HttpService({
-    //         url: url,
-    //         method: 'get'
-    //     }).then(response => {
-    //         this.desktopList = response;
-    //     })
-    // },
-    //
-    // async getDesktopItem(itemId) {
-    //     this.editDesktop();
-    //     const url = this.apiUrl + '/desktop/' + itemId;
-    //     const resp = await HttpService({url: url, method: 'get'})
-    //     this.desktopTitle = resp['title'];
-    //     this.desktopId = resp['id'];
-    //     this.desktopVidgetList = [];
-    //     for (let i in resp['vidgets']) {
-    //         let item = JSON.parse(resp['vidgets'][i]);
-    //         this.desktopVidgetList.push(item)
-    //     }
-    //
-    // },
-    //
-
-  }
 
 }

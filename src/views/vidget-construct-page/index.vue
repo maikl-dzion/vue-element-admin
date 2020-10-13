@@ -64,7 +64,7 @@
             >Список рабочих столов</div>
             <hr>
 
-            <div class="component-item" style="height:420px;">
+            <div class="component-item" style="min-height:420px;">
               <!--<pre>{{desktopList}}</pre>-->
               <div v-for="(desktop, index) in desktopList" style="display: flex; border: 1px gainsboro solid; padding:2px; margin:2px; ">
                   <div style="width: 95%; margin:3px; padding:3px; border-bottom: 1px grey solid; cursor: pointer;"

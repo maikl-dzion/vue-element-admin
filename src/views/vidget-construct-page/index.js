@@ -191,19 +191,27 @@ export default {
         },
 
         saveDesktop(callback = null) {
+
             const url = this.apiUrl + '/post/desktop-save'
             this.desktopItem['widget_list'] = this.cloneItem(this.desktopWidgetList)
             const postData = this.desktopItem
 
-            this.postRequest(url, postData)
+            this.makeRequest(url, {}, postData, "POST")
                 .then(response => {
+                    // lg(response);
                     console.log(response);
                     this.getDesktopList();
-                }) // обрабатываем результат вызова response.json()
-                .catch(error => {
-                    console.error({url, error})
-                    // lg({url, error});
-                })
+                });
+
+            // this.postRequest(url, postData)
+            //     .then(response => {
+            //         console.log(response);
+            //         this.getDesktopList();
+            //     }) // обрабатываем результат вызова response.json()
+            //     .catch(error => {
+            //         console.error({url, error})
+            //         // lg({url, error});
+            //     })
         },
 
         postRequest(url, data, headers = {}) {
@@ -214,6 +222,23 @@ export default {
                 method     : 'POST', // метод POST
                 body       : JSON.stringify(data) //
             }).then(response => response.json()) // возвращаем промис
+        },
+
+        makeRequest(url, headers = {}, data = null, method = "GET") {
+            headers['Content-Type'] = 'application/json';
+            return fetch(url, { method : method, headers: headers, body : JSON.stringify(data)})
+                    .then(response => {
+                        // let dataType = typeof response;
+                        // lg(response);
+                        //let result = response.json();
+                        return response;
+                    }).then(result => {
+                        console.log('result',result);
+                        return result;
+                    }).catch(error => {
+                        console.log('Request failed', error);
+                        // lg(error);
+                    });
         },
 
         getRequest(url, headers = {}) {

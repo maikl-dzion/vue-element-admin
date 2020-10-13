@@ -107,7 +107,7 @@ export default {
                 })
         },
 
-        async getDesktopItem(desktop, index) {
+        async getDesktopItem(desktop, index = 0) {
             const itemId = desktop.desktop_id
             this.editDesktop()
             const url = this.apiUrl + '/desktop-item/' + itemId
@@ -152,13 +152,36 @@ export default {
             this.desktopWidgetList[this.elemIndex]['pos'] = param.pos
         },
 
-        deleteWidget(index, vidget) {
-            delete this.desktopWidgetList[index]
-            const items = this.cloneItem(this.desktopWidgetList)
-            this.desktopWidgetList = []
-            for (const i in items) {
-                this.desktopWidgetList.push(items[i])
-            }
+        deleteWidget(index, widget) {
+
+            // delete this.desktopWidgetList[index]
+            // const items = this.cloneItem(this.desktopWidgetList)
+            // this.desktopWidgetList = []
+            // for (const i in items) {
+            //     this.desktopWidgetList.push(items[i])
+            // }
+
+            let widgetId = widget.widget_id;
+            const url = this.apiUrl + '/delete-widget/' + widgetId
+            this.getRequest(url)
+                .then(response => {
+                    console.log(response);
+                    this.getDesktopItem(this.desktopItem);
+                }).catch(error => {
+                    console.error({url, error})
+                })
+        },
+
+        deleteDesktopItem(desktop) {
+            let desktopId = desktop.desktop_id;
+            const url = this.apiUrl + '/delete-desktop-item/' + desktopId
+            this.getRequest(url)
+                .then(response => {
+                    console.log(response);
+                    this.getDesktopList();
+                }).catch(error => {
+                    console.error({url, error})
+                })
         },
 
         _clear() {
@@ -190,6 +213,15 @@ export default {
                 credentials: 'same-origin', // параметр определяющий передвать ли разные сессионные данные вместе с запросом
                 method     : 'POST', // метод POST
                 body       : JSON.stringify(data) //
+            }).then(response => response.json()) // возвращаем промис
+        },
+
+        getRequest(url, headers = {}) {
+            headers['Content-Type'] = 'application/json'
+            return fetch(url, {
+                headers    : new Headers(headers),
+                credentials: 'same-origin', // параметр определяющий передвать ли разные сессионные данные вместе с запросом
+                method     : 'GET'          // метод GET
             }).then(response => response.json()) // возвращаем промис
         },
 

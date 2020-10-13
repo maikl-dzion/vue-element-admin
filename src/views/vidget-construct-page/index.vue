@@ -66,13 +66,16 @@
 
             <div class="component-item" style="height:420px;">
               <!--<pre>{{desktopList}}</pre>-->
-              <div
-                v-for="(desktop, index) in desktopList"
-                style="margin:3px; border-bottom: 1px grey solid; cursor: pointer"
-                @click="getDesktopItem(desktop, index)"
-              >
-                {{ desktop.label }}
+              <div v-for="(desktop, index) in desktopList" style="display: flex; border: 1px gainsboro solid; padding:2px; margin:2px; ">
+                  <div style="width: 95%; margin:3px; padding:3px; border-bottom: 1px grey solid; cursor: pointer;"
+                       @click="getDesktopItem(desktop, index)" > {{ desktop.label }}
+                  </div>
+                  <button style="height: 30px; margin: 2px 0px 0px 0px; cursor: pointer"
+                          @click="deleteDesktopItem(desktop)" >
+                          <i class="el-icon-delete" style="color:red;"/>
+                  </button>
               </div>
+
             </div>
           </el-card>
         </el-col>
